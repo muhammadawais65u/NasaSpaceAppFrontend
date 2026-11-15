@@ -1,0 +1,381 @@
+{
+ "resource_range": [
+  0,
+  100
+ ],
+ "total_days": 7,
+ "start": {
+  "oxygen_level": 70,
+  "power_level": 75,
+  "water_level": 65,
+  "food_level": 65,
+  "radiation_protection_level": 55
+ },
+ "daily_drain": {
+  "oxygen_level": 6,
+  "power_level": 5,
+  "water_level": 5,
+  "food_level": 5,
+  "radiation_protection_level": 4
+ },
+ "alert_radiation_multiplier": {
+  "calm": 1.0,
+  "watch": 1.5,
+  "storm": 2.0
+ },
+ "is_game_design": true,
+ "missions": [
+  {
+   "day": 1,
+   "title": "Establish Outpost",
+   "decision_type": "outpost_setup",
+   "description": "Build your Moon base and make it ready for astronauts!",
+   "scenario": "The lander has touched down. Where and how should we build the base?",
+   "objectives": [
+    "Find a good location",
+    "Build the habitat",
+    "Install oxygen and power"
+   ]
+  },
+  {
+   "day": 2,
+   "title": "Power Management",
+   "decision_type": "power_allocation",
+   "description": "Keep your base powered for a successful mission!",
+   "scenario": "The solar panels are working. Where should today's power go?",
+   "objectives": [
+    "Activate solar panels",
+    "Store energy in batteries",
+    "Manage power usage"
+   ]
+  },
+  {
+   "day": 3,
+   "title": "Radiation Protection",
+   "decision_type": "radiation_response",
+   "description": "The Sun can send out bursts of radiation. Keep your crew safe!",
+   "scenario": "Mission Control is watching the Sun. How will the crew spend the day?",
+   "objectives": [
+    "Monitor radiation",
+    "Activate shield",
+    "Move crew to shelter"
+   ]
+  },
+  {
+   "day": 4,
+   "title": "Water & Life Support",
+   "decision_type": "water_system",
+   "description": "Keep water and oxygen levels stable!",
+   "scenario": "The life-support system needs a plan for the water tanks.",
+   "objectives": [
+    "Activate water recycling",
+    "Check oxygen levels",
+    "Fix air filtration"
+   ]
+  },
+  {
+   "day": 5,
+   "title": "Final Emergency",
+   "decision_type": "emergency_response",
+   "description": "Handle the emergency and save your crew!",
+   "scenario": "Alarm! A tiny space rock has made a hole and air is leaking out.",
+   "objectives": [
+    "Fix the critical system",
+    "Restore oxygen",
+    "Survive the crisis"
+   ]
+  },
+  {
+   "day": 6,
+   "title": "Food Production",
+   "decision_type": "food_production",
+   "description": "Grow food to keep your crew healthy!",
+   "scenario": "The crew is hungry. How should we feed everyone?",
+   "objectives": [
+    "Build a greenhouse",
+    "Grow vegetables",
+    "Harvest food"
+   ]
+  },
+  {
+   "day": 7,
+   "title": "Scientific Exploration",
+   "decision_type": "science_exploration",
+   "description": "Explore the Moon and complete research!",
+   "scenario": "Last day! How should the crew finish their science work?",
+   "objectives": [
+    "Explore craters",
+    "Collect samples",
+    "Send data to Earth"
+   ]
+  }
+ ],
+ "decisions": {
+  "outpost_setup": {
+   "build_near_ice": {
+    "label": "Build near the ice crater",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": -12,
+     "water_level": 18,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 12
+    },
+    "lesson": "Ice can be melted into water, but the crater is shady, so solar panels make less power there."
+   },
+   "build_on_sunny_ridge": {
+    "label": "Build on the sunny ridge",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": 15,
+     "water_level": -10,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 12
+    },
+    "lesson": "Lots of sunlight means lots of power, but the water ice is far away."
+   },
+   "bury_the_habitat": {
+    "label": "Cover the habitat with Moon soil",
+    "effects": {
+     "oxygen_level": -4,
+     "power_level": -10,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 18,
+     "score": 15
+    },
+    "lesson": "A thick layer of Moon soil blocks radiation, but digging uses a lot of energy and air."
+   }
+  },
+  "power_allocation": {
+   "research_boost": {
+    "label": "Boost science research",
+    "effects": {
+     "oxygen_level": -2,
+     "power_level": -15,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 20
+    },
+    "lesson": "Research earns big points, but the extra power it uses cannot also run life support."
+   },
+   "life_support_priority": {
+    "label": "Prioritise life support",
+    "effects": {
+     "oxygen_level": 10,
+     "power_level": -8,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 10
+    },
+    "lesson": "Sending power to the air system keeps the crew breathing, but science waits."
+   },
+   "battery_save": {
+    "label": "Save battery power",
+    "effects": {
+     "oxygen_level": -3,
+     "power_level": 12,
+     "water_level": 0,
+     "food_level": -3,
+     "radiation_protection_level": 0,
+     "score": 5
+    },
+    "lesson": "Doing less saves energy now, but the crew still uses air and food while they wait."
+   }
+  },
+  "radiation_response": {
+   "shelter_in_place": {
+    "label": "Shelter in the storm room",
+    "effects": {
+     "oxygen_level": -3,
+     "power_level": -8,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 10,
+     "score": 15
+    },
+    "lesson": "Taking shelter protects the crew and shield, but costs power and a little air."
+   },
+   "reinforce_shield": {
+    "label": "Reinforce the shield",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": -12,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 20,
+     "score": 12
+    },
+    "lesson": "A stronger shield is the best protection, but it takes a lot of power."
+   },
+   "continue_work": {
+    "label": "Keep working outside",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": 0,
+     "water_level": 0,
+     "food_level": 4,
+     "radiation_protection_level": -15,
+     "score": 10
+    },
+    "lesson": "Working on keeps the mission moving, but it wears down your protection."
+   }
+  },
+  "water_system": {
+   "recycle_water": {
+    "label": "Recycle every drop",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": -10,
+     "water_level": 16,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 12
+    },
+    "lesson": "Astronauts clean and reuse almost all their water, but the recycling machine needs power."
+   },
+   "make_oxygen_from_water": {
+    "label": "Turn water into oxygen",
+    "effects": {
+     "oxygen_level": 16,
+     "power_level": -5,
+     "water_level": -12,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 12
+    },
+    "lesson": "Electricity can split water into oxygen to breathe, but that uses up water and power."
+   },
+   "ration_water": {
+    "label": "Ration the water",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": 0,
+     "water_level": 6,
+     "food_level": -6,
+     "radiation_protection_level": 0,
+     "score": 4
+    },
+    "lesson": "Using less water makes it last longer, but the plants and crew get less than they need."
+   }
+  },
+  "emergency_response": {
+   "patch_from_inside": {
+    "label": "Patch the leak from inside",
+    "effects": {
+     "oxygen_level": -8,
+     "power_level": -8,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 15
+    },
+    "lesson": "A quick patch stops the leak, but some air escapes while you work."
+   },
+   "spacewalk_repair": {
+    "label": "Go outside to repair it",
+    "effects": {
+     "oxygen_level": -3,
+     "power_level": -5,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": -12,
+     "score": 20
+    },
+    "lesson": "Fixing it from outside is the strongest repair, but outside there is no shelter from radiation."
+   },
+   "seal_off_module": {
+    "label": "Seal off the damaged room",
+    "effects": {
+     "oxygen_level": -2,
+     "power_level": 0,
+     "water_level": -8,
+     "food_level": -10,
+     "radiation_protection_level": 0,
+     "score": 8
+    },
+    "lesson": "Closing the room is safe and fast, but the supplies stored inside are lost."
+   }
+  },
+  "food_production": {
+   "grow_greenhouse": {
+    "label": "Grow vegetables in the greenhouse",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": -8,
+     "water_level": -12,
+     "food_level": 18,
+     "radiation_protection_level": 0,
+     "score": 15
+    },
+    "lesson": "Fresh food is great for the crew, but plants need lots of water and light."
+   },
+   "grow_microgreens": {
+    "label": "Grow fast baby greens",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": 0,
+     "water_level": -5,
+     "food_level": 8,
+     "radiation_protection_level": 0,
+     "score": 8
+    },
+    "lesson": "Small plants grow quickly with little water, but they make only a little food."
+   },
+   "eat_packaged_food": {
+    "label": "Eat the packaged meals",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": 3,
+     "water_level": 0,
+     "food_level": -6,
+     "radiation_protection_level": 0,
+     "score": 4
+    },
+    "lesson": "Packaged meals need no water or light, but every pack eaten is one less in storage."
+   }
+  },
+  "science_exploration": {
+   "long_rover_trip": {
+    "label": "Drive the rover to a far crater",
+    "effects": {
+     "oxygen_level": -8,
+     "power_level": -15,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": -8,
+     "score": 30
+    },
+    "lesson": "Far-away places hold the best discoveries, but the trip uses air, power and time outside the shield."
+   },
+   "collect_nearby": {
+    "label": "Collect rocks near the base",
+    "effects": {
+     "oxygen_level": -4,
+     "power_level": -6,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 15
+    },
+    "lesson": "Staying close is safer and cheaper, but you find fewer new things."
+   },
+   "send_data_home": {
+    "label": "Send your data to Earth",
+    "effects": {
+     "oxygen_level": 0,
+     "power_level": -4,
+     "water_level": 0,
+     "food_level": 0,
+     "radiation_protection_level": 0,
+     "score": 8
+    },
+    "lesson": "Sharing results needs only a little power, but no new samples are collected."
+   }
+  }
+ }
+}

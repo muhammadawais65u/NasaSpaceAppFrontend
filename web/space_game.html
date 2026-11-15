@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moon Mission – Junior Astronaut</title>
+<style>
+:root{--bg:#02030a;--panel:rgba(14,20,44,.82);--line:#2a3560;--tx:#e8ecff;--mut:#97a2d0;--acc:#ffb347;--ok:#7be0a0;--bad:#ff7a7a;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--panel:rgba(255,255,255,.88);--line:#b9c3ea;--tx:#14193a;--mut:#4a5483;--acc:#b85c00;--ok:#16794a;--bad:#c02a2a;color-scheme:light}}
+:root[data-theme="dark"]{color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 "Trebuchet MS","Segoe UI",system-ui,sans-serif;overflow:hidden;touch-action:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.p{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;backdrop-filter:blur(4px)}
+#mis{top:calc(10px + env(safe-area-inset-top,0px));left:calc(10px + env(safe-area-inset-left,0px));max-width:260px}
+#mis h3{margin:0 0 6px;font:700 .95rem Georgia,serif}
+#mis ul{list-style:none;margin:0;padding:0;font-size:.88rem;color:var(--mut)}
+#mis li{padding:2px 0}#mis li.now{color:var(--tx);font-weight:700}#mis li.done{color:var(--ok)}
+#st{top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));width:210px;font-size:.85rem}
+.bar{height:10px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden;margin:4px 0 8px}
+.bar i{display:block;height:100%;width:100%;background:#5ec8ff;transition:width .2s}
+#toast{left:50%;top:calc(70px + env(safe-area-inset-top,0px));transform:translateX(-50%);opacity:0;transition:opacity .3s;text-align:center;pointer-events:none}
+#ov{inset:0;display:grid;place-items:center;text-align:center;border-radius:0;background:rgba(2,3,10,.55);padding:20px}
+#ov h1{font:700 clamp(1.8rem,6vw,3rem) Georgia,serif;margin:0 0 6px}
+#ov p{color:var(--mut);margin:4px 0 16px}
+button{font:inherit;cursor:pointer;color:#1a1200;background:var(--acc);border:0;border-radius:10px;padding:12px 28px;font-weight:700;font-size:1.1rem}
+button:focus-visible{outline:3px solid var(--tx);outline-offset:2px}
+#pad{display:none;position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom,0px));justify-content:space-between;padding:0 18px;pointer-events:none}
+#pad div{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(2,54px);gap:6px;pointer-events:auto}
+#pad button{padding:0;width:54px;height:54px;font-size:1.3rem;background:var(--panel);color:var(--tx);border:1px solid var(--line)}
+@media (pointer:coarse){#pad{display:flex}}
+.hide{display:none!important}
+.p{box-shadow:0 8px 30px rgba(0,0,0,.35)}
+#mis h3,.lb,small{font:700 .7rem system-ui,sans-serif;letter-spacing:.14em;color:var(--mut)}
+.lb{display:flex;justify-content:space-between;margin-top:2px}.lb b{color:var(--tx);letter-spacing:0}
+#mis ul{margin-top:8px}
+#nav{display:flex;align-items:center;gap:10px;margin-top:4px;font-weight:700;font-size:1rem}
+#arr{display:inline-block;color:var(--acc);font-size:1.4rem;transition:transform .1s}
+#toast{max-width:min(520px,90vw)}#pr{left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:none;font-weight:700;color:var(--acc)}#toast small{display:block;color:var(--acc);margin-bottom:2px}
+#hb{top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:8px 14px;font-size:.85rem;color:var(--tx);background:var(--panel);box-shadow:none;border:1px solid var(--line)}
+#cr,#bk{left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,92vw);max-height:86vh;overflow:auto;display:none;z-index:6;padding:18px}
+#cr h2,#bk h2{margin:0 0 6px;font:700 1.3rem Georgia,serif}#cr .w{color:var(--acc);font:700 .72rem system-ui;letter-spacing:.14em}
+#cr button,#bk button{width:100%;margin-top:8px;text-align:left;background:var(--line);color:var(--tx);box-shadow:none;font-size:.95rem;padding:10px 14px}
+.fb2{margin-top:10px;padding:10px;border-left:3px solid var(--acc);background:rgba(255,255,255,.06);border-radius:0 8px 8px 0;font-size:.92rem}
+#bk h3{margin:14px 0 6px;font:700 .8rem system-ui;letter-spacing:.14em;color:var(--acc)}#bk ul{padding-left:18px;margin:0}#bk li{margin:6px 0;font-size:.9rem}
+.brand{display:block;margin-bottom:6px;color:var(--acc)!important}
+kbd{background:var(--line);border-radius:5px;padding:1px 7px;margin:0 2px;font:600 .85rem monospace}
+#ov h1{text-shadow:0 4px 24px rgba(255,179,71,.35)}
+#ov{background:radial-gradient(ellipse at center,rgba(2,3,10,.35),rgba(2,3,10,.8))}
+button{box-shadow:0 6px 20px rgba(255,179,71,.35);transition:transform .15s}button:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="p" id="mis"><h3>MISSIONS</h3><div class="bar"><i id="mp" style="background:var(--acc);width:0"></i></div><ul id="ml"></ul></div>
+<div class="p" id="st"><div id="rs"></div><div class="lb">MISSION TIME <b id="tm">0:00</b></div><div id="nav"><span id="arr">▲</span><span id="dist">–</span></div></div>
+<div class="p" id="toast"><small>MISSION CONTROL</small><span id="tt"></span></div><div class="p" id="pr"></div><button id="hb" class="p">📖 Handbook (H)</button><div class="p" id="cr"></div><div class="p" id="bk"></div>
+<div id="pad">
+ <div><span></span><button data-k="w" aria-label="Forward">▲</button><span></span><button data-k="a" aria-label="Left">◀</button><button data-k="s" aria-label="Back">▼</button><button data-k="d" aria-label="Right">▶</button></div>
+ <div style="grid-template-columns:90px"><button data-k="e" style="width:90px" aria-label="Enter or exit the spaceship">E</button><button data-k=" " style="width:90px" aria-label="Jump">Jump</button></div>
+</div>
+<div class="p" id="ov"><div>
+ <small class="brand">JUNIOR ASTRONAUT MISSION TRAINER</small><h1>Moon Mission</h1>
+ <p id="ovt">Explore the lunar surface, keep Oxygen, Power, Fuel and Morale up while you complete 4 missions. Crises will happen: choose wisely and learn like a real astronaut. Open the Handbook (H) to find out what astronauts do. Hold Space in the air to fire your jetpack (uses fuel).</p><p class="keys"><kbd>W</kbd> forward · <kbd>S</kbd> back · <kbd>A</kbd><kbd>D</kbd> turn (arrows work too) · <kbd>Space</kbd> jump · <kbd>E</kbd> enter or leave the spaceship</p>
+ <button id="go">Start</button>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const R=new THREE.WebGLRenderer({canvas:$("c"),antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,1.5));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.8;
+const S=new THREE.Scene();S.background=new THREE.Color(0x02030a);
+const C=new THREE.PerspectiveCamera(55,1,.1,700);
+S.add(new THREE.AmbientLight(0x8090c0,.35));
+const sun=new THREE.DirectionalLight(0xfff4e0,1.0);sun.position.set(60,80,30);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.bias=-.0004;sun.shadow.normalBias=.4;
+Object.assign(sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:220});sun.shadow.camera.updateProjectionMatrix();S.add(sun,sun.target);
+function size(){R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}
+addEventListener("resize",size);size();
+
+/* terrain */
+const CR=[[30,-10,9,2.2],[-20,25,7,1.6],[45,35,12,3],[-45,-15,10,2.4],[10,-55,8,2],[-10,60,11,2.6]];
+const sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+function h(x,z){let y=Math.sin(x*.05)*Math.cos(z*.06)*2+Math.sin(x*.13+z*.1)*.5;
+ y*=sm(8,22,Math.hypot(x,z));
+ CR.forEach(c=>{y-=c[3]*Math.exp(-((x-c[0])**2+(z-c[1])**2)/(c[2]*c[2]))});return y}
+const gg=new THREE.PlaneGeometry(400,400,160,160);gg.rotateX(-Math.PI/2);
+const gp=gg.attributes.position;for(let i=0;i<gp.count;i++)gp.setY(i,h(gp.getX(i),gp.getZ(i)));
+gg.computeVertexNormals();
+function moonTex(){const c=document.createElement("canvas");c.width=c.height=1024;const g=c.getContext("2d");g.fillStyle="#707077";g.fillRect(0,0,1024,1024);
+ for(let i=0;i<9000;i++){const v=110+Math.random()*60|0;g.fillStyle=`rgba(${v},${v},${v+6},.35)`;g.beginPath();g.arc(Math.random()*1024,Math.random()*1024,Math.random()*5+1,0,7);g.fill()}
+ for(let i=0;i<70;i++){const x=Math.random()*1024,y=Math.random()*1024,r=8+Math.random()*50,gr=g.createRadialGradient(x,y,r*.2,x,y,r);gr.addColorStop(0,"rgba(60,60,66,.55)");gr.addColorStop(.85,"rgba(70,70,76,.25)");gr.addColorStop(.93,"rgba(190,190,196,.5)");gr.addColorStop(1,"rgba(140,140,146,0)");g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill()}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(8,8);t.anisotropy=4;t.encoding=THREE.sRGBEncoding;return t}
+const mt=moonTex();const ground=new THREE.Mesh(gg,new THREE.MeshStandardMaterial({map:mt,bumpMap:mt,bumpScale:1.5,roughness:1}));ground.receiveShadow=true;S.add(ground);
+/* sky */
+const sp=[];for(let i=0;i<1600;i++){const a=Math.random()*6.28,b=Math.random()*1.4,r=450;sp.push(Math.cos(a)*Math.cos(b)*r,Math.sin(b)*r,Math.sin(a)*Math.cos(b)*r)}
+const sg=new THREE.BufferGeometry();sg.setAttribute("position",new THREE.Float32BufferAttribute(sp,3));
+S.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false})));
+const earth=new THREE.Mesh(new THREE.SphereGeometry(18,32,24),new THREE.MeshStandardMaterial({color:0x2a6fd6,emissive:0x0a1a40,roughness:.9}));
+earth.position.set(-140,90,-260);S.add(earth);
+(function(){const c=document.createElement("canvas");c.width=512;c.height=256;const g=c.getContext("2d");g.fillStyle="#1c5fc4";g.fillRect(0,0,512,256);
+ for(let i=0;i<40;i++){g.fillStyle="rgba(60,140,70,.8)";g.beginPath();g.ellipse(Math.random()*512,Math.random()*256,10+Math.random()*40,6+Math.random()*25,Math.random()*3,0,7);g.fill()}
+ for(let i=0;i<60;i++){g.fillStyle="rgba(255,255,255,.45)";g.beginPath();g.ellipse(Math.random()*512,Math.random()*256,10+Math.random()*50,3+Math.random()*8,Math.random()*3,0,7);g.fill()}
+ earth.material.map=new THREE.CanvasTexture(c);earth.material.color.set(0xffffff);earth.material.needsUpdate=true})();
+const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.6},o||{}));
+const at=(o,x,y,z)=>{o.position.set(x,y,z);return o};
+const put=(o,x,z,dy)=>{o.position.set(x,h(x,z)+(dy||0),z);S.add(o);return o};
+
+/* lander */
+const lander=new THREE.Group();
+lander.add(at(new THREE.Mesh(new THREE.CylinderGeometry(1.8,2.4,2.2,8),M(0xd8b44a,{metalness:.4})),0,2.4,0));
+lander.add(at(new THREE.Mesh(new THREE.ConeGeometry(1.8,1.2,8),M(0xcfcfd8)),0,4.1,0));
+for(let i=0;i<4;i++){const l=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,2.6,6),M(0x888899));const a=i*Math.PI/2+.78;l.position.set(Math.cos(a)*2.3,1.2,Math.sin(a)*2.3);l.rotation.z=Math.cos(a)*.5;l.rotation.x=-Math.sin(a)*.5;lander.add(l)}
+put(lander,0,0);
+lander.children.forEach(c=>c.visible=false);
+const HU=M(0xe9ebf3,{metalness:.5,roughness:.35}),AC=M(0xff5a3c,{metalness:.4}),DKM=M(0x555a6e,{metalness:.7}),GL=new THREE.MeshStandardMaterial({color:0x7fd0ff,emissive:0x2a90ff,emissiveIntensity:.9});
+const sa=(g,m,x,y,z)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);lander.add(o);return o};
+sa(new THREE.CylinderGeometry(1.7,1.9,7,24),HU,0,5.2,0);sa(new THREE.ConeGeometry(1.7,3,24),AC,0,10.2,0);sa(new THREE.CylinderGeometry(1.95,1.95,.4,24),AC,0,2.4,0);
+sa(new THREE.CylinderGeometry(.7,1.1,1,16),DKM,0,1.2,0);sa(new THREE.CylinderGeometry(.5,.5,.1,16),new THREE.MeshBasicMaterial({color:0xffa040}),0,.65,0);
+for(let i=0;i<3;i++){const a=i*2.094+.5,f=sa(new THREE.BoxGeometry(.2,3.2,1.6),AC,Math.cos(a)*2.4,2.8,Math.sin(a)*2.4);f.rotation.y=-a;sa(new THREE.CylinderGeometry(.08,.08,2.4,6),DKM,Math.cos(a)*2.9,1.2,Math.sin(a)*2.9);sa(new THREE.CylinderGeometry(.4,.4,.1,12),DKM,Math.cos(a)*2.9,.05,Math.sin(a)*2.9)}
+[-.8,.8].forEach(x=>{sa(new THREE.CylinderGeometry(.4,.4,.15,16),GL,x,7.4,1.55).rotation.x=Math.PI/2});
+sa(new THREE.BoxGeometry(1.6,2.6,.1),DKM,0,3.7,1.74);sa(new THREE.BoxGeometry(1.3,2.3,.12),M(0x30c060,{emissive:0x104020}),0,3.7,1.78);
+sa(new THREE.BoxGeometry(1.4,.12,3.7),DKM,0,1.3,3.1).rotation.x=.78;
+/* spaceship interior (far above the Moon, same scene) */
+const INT=new THREE.Group();INT.position.set(0,1000,0);S.add(INT);
+const ia=(g,m,x,y,z)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);INT.add(o);return o};
+const BX=(w,h2,d)=>new THREE.BoxGeometry(w,h2,d),CY=(r,l)=>new THREE.CylinderGeometry(r,r,l,16),glow=c=>new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.8});
+ia(BX(12,4,10),new THREE.MeshStandardMaterial({color:0xcfd3e0,side:THREE.BackSide,roughness:.7}),0,2,0);ia(BX(11.8,.1,9.8),M(0x3a4056),0,.05,0);
+[-2.5,2.5].forEach(z=>ia(BX(10,.08,.3),new THREE.MeshBasicMaterial({color:0xfff2c0}),0,3.92,z));
+[[0,3.4,0],[0,3.4,-3.5]].forEach(p=>{const l=new THREE.PointLight(0xfff0d8,1.3,24);l.position.set(p[0],p[1],p[2]);INT.add(l)});
+ia(CY(.55,2.4),M(0x5ec8ff,{metalness:.5}),-5.2,1.3,-1.5);ia(CY(.55,2.4),M(0x5ec8ff,{metalness:.5}),-5.2,1.3,-2.8);
+[0,1].forEach(i=>[0,1].forEach(j=>ia(BX(.8,.8,.8),glow(0xffd35e),5.2,.55+i*.9,-1.5-j*1.3)));
+ia(CY(.7,3),M(0xff8a3c,{metalness:.5}),-3,1,-4.2).rotation.z=Math.PI/2;
+ia(BX(2.4,.5,1.1),M(0x2a6fd6),3.2,.4,-4.2);ia(BX(2.4,.5,1.1),M(0x2a6fd6),3.2,1.4,-4.2);ia(BX(.1,1.6,.1),M(0x888899),2,.9,-4.2);
+ia(BX(3,1.1,1),M(0x2b3050),0,.55,-2);ia(new THREE.PlaneGeometry(2.6,.7),new THREE.MeshBasicMaterial({color:0x2a90ff}),0,1.4,-2.3).rotation.x=-.5;
+ia(new THREE.CircleGeometry(.9,32),new THREE.MeshBasicMaterial({map:earth.material.map}),5.93,2.5,1.8).rotation.y=-Math.PI/2;
+ia(BX(1.8,2.5,.1),glow(0x30c060),0,1.3,4.93);
+function lab(w,h2,x,y,z,ry){const c=document.createElement("canvas");c.width=768;c.height=Math.round(768*h2/w);const t=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h2),new THREE.MeshBasicMaterial({map:t}));m.position.set(x,y,z);m.rotation.y=ry;INT.add(m);return{c,t,g:c.getContext("2d")}}
+const LO=lab(2.2,1.4,-5.93,2.7,-2.1,Math.PI/2),LP=lab(2.2,1.4,5.93,2.7,-2.1,-Math.PI/2),LF=lab(2.2,1.4,-3,2.7,-4.93,0),LM=lab(2.2,1.4,3.2,2.7,-4.93,0),LB=lab(3.4,2.4,0,2.2,-4.93,0);
+function panel(L,t2,v,col){const g=L.g,W=L.c.width,H=L.c.height;g.fillStyle="rgba(10,16,38,.94)";g.fillRect(0,0,W,H);g.strokeStyle=col;g.lineWidth=8;g.strokeRect(4,4,W-8,H-8);g.fillStyle="#97a2d0";g.font="bold 44px sans-serif";g.fillText(t2,28,70);g.fillStyle=v<25?"#ff7a7a":"#fff";g.font="bold 130px sans-serif";g.fillText(Math.round(v)+"%",28,H-100);g.fillStyle="rgba(255,255,255,.15)";g.fillRect(28,H-60,W-56,26);g.fillStyle=v<25?"#ff7a7a":col;g.fillRect(28,H-60,(W-56)*Math.max(0,v)/100,26);L.t.needsUpdate=true}
+function board(){const g=LB.g,W=LB.c.width,H=LB.c.height;g.fillStyle="rgba(10,16,38,.94)";g.fillRect(0,0,W,H);g.strokeStyle="#ffb347";g.lineWidth=8;g.strokeRect(4,4,W-8,H-8);g.fillStyle="#ffb347";g.font="bold 40px sans-serif";g.fillText("MISSION BOARD   "+fmt(tm),28,66);g.font="26px sans-serif";MIS.forEach((m,i)=>{g.fillStyle=i<mi?"#7be0a0":i==mi?"#fff":"#97a2d0";g.fillText((i<mi?"✔ ":i==mi?"▶ ":"○ ")+m,28,140+i*72)});LB.t.needsUpdate=true}
+function drawInt(){panel(LO,"OXYGEN TANKS",ox,"#5ec8ff");panel(LP,"POWER CELLS",pw,"#ffd35e");panel(LF,"FUEL TANK",fu,"#ff8a5e");panel(LM,"CREW MORALE",mo,"#9be37a");board()}
+const doorW=()=>new THREE.Vector3(lander.position.x,lander.position.y,lander.position.z+3.8);
+function enterExit(){if(st!="play"||crisis||book)return;
+ if(!inside){if(dxz(pos,doorW())<3){inside=true;pos.set(0,1000.1,3.4);yaw=Math.PI;cyaw=yaw;vy=0;C.position.set(0,1002.4,4.6);drawInt();toast("Inside your spaceship. Check every station: oxygen, power, fuel and crew. You recover here.",4)}}
+ else if(pos.z>3&&Math.abs(pos.x)<1.8){inside=false;const d=doorW();pos.set(d.x,h(d.x,d.z+1.5),d.z+1.5);yaw=0;cyaw=0;vy=0;toast("Back on the Moon surface.")}}
+/* base + antenna */
+const BASE=new THREE.Vector3(-30,0,-35);BASE.y=h(BASE.x,BASE.z);
+const dome=new THREE.Mesh(new THREE.SphereGeometry(4,24,16,0,6.28,0,1.57),M(0xe6e8f2));put(dome,BASE.x,BASE.z);
+const ANT=new THREE.Vector3(-22,0,-31);ANT.y=h(ANT.x,ANT.z);
+const mast=new THREE.Mesh(new THREE.CylinderGeometry(.1,.14,4,8),M(0x8888a0));put(mast,ANT.x,ANT.z,2);
+const dish=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,10,0,6.28,0,1.2),M(0xe6e8f2));put(dish,ANT.x,ANT.z,4.1);dish.rotation.x=-.7;
+const lamp=new THREE.Mesh(new THREE.SphereGeometry(.22,12,12),new THREE.MeshBasicMaterial({color:0xff4040}));put(lamp,ANT.x,ANT.z,4.6);
+/* flag spot */
+const FL=new THREE.Vector3(38,0,-26);FL.y=h(FL.x,FL.z);
+const flag=new THREE.Group();flag.add(at(new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,3,6),M(0xeeeeee)),0,1.5,0));
+flag.add(at(new THREE.Mesh(new THREE.PlaneGeometry(1.5,.95),new THREE.MeshBasicMaterial({color:0x2a6fd6,side:2})),.75,2.5,0));
+const FG=new THREE.Vector3(-8,0,52);FG.y=h(FG.x,FG.z);put(flag,FG.x,FG.z);flag.visible=false;
+const spot=new THREE.Mesh(new THREE.RingGeometry(1.2,1.6,24),new THREE.MeshBasicMaterial({color:0xffb347,side:2}));spot.rotation.x=-Math.PI/2;put(spot,FL.x,FL.z,.1);
+const spot2=spot.clone();put(spot2,FG.x,FG.z,.1);
+const can=new THREE.Mesh(new THREE.BoxGeometry(1.1,.8,.8),M(0xb8bcc8,{metalness:.5,roughness:.5}));put(can,FL.x,FL.z,.5);
+const seis=new THREE.Mesh(new THREE.CylinderGeometry(.5,.6,.35,16),M(0xd8b44a,{metalness:.6}));put(seis,ANT.x+.3,ANT.z+2.4,.2);
+[-1.8,1.8].forEach(d=>{const p=new THREE.Mesh(new THREE.BoxGeometry(2.2,.08,1.4),M(0x1a2f7a,{metalness:.6,roughness:.3}));put(p,ANT.x+d,ANT.z,1.4);p.rotation.z=d>0?-.4:.4});
+/* crystals */
+const crystals=[[14,-14],[-18,10],[24,22],[-8,-30],[40,6]].map(p=>{
+ const m=new THREE.Mesh(new THREE.DodecahedronGeometry(.55,0),new THREE.MeshStandardMaterial({color:0x6b6560,roughness:1,flatShading:true}));const pl=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,1.6,6),M(0xdddddd));pl.position.y=.9;m.add(pl);const fl=new THREE.Mesh(new THREE.PlaneGeometry(.5,.32),new THREE.MeshBasicMaterial({color:0xff7a1a,side:2}));fl.position.set(.25,1.5,0);m.add(fl);
+ return put(m,p[0],p[1],0)});
+/* beam */
+const beam=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,40,12,1,true),new THREE.MeshBasicMaterial({color:0xffb347,transparent:true,opacity:.2,blending:THREE.AdditiveBlending,depthWrite:false,side:2}));S.add(beam);
+
+/* astronaut (feet at y=0) */
+const A=new THREE.Group(),W=M(0xf4f4f8),DK=M(0x2b3050);
+const body=new THREE.Mesh(new THREE.CylinderGeometry(.42,.46,.9,16),W);body.position.y=1.15;A.add(body);
+const head=new THREE.Mesh(new THREE.SphereGeometry(.4,20,16),W);head.position.y=1.9;A.add(head);
+const vis=new THREE.Mesh(new THREE.SphereGeometry(.3,20,16),new THREE.MeshStandardMaterial({color:0x14214a,metalness:.85,roughness:.12}));vis.position.set(0,1.9,.18);vis.scale.set(1,.85,.8);A.add(vis);
+const pack=new THREE.Mesh(new THREE.BoxGeometry(.6,.75,.28),M(0xc9ccdb));pack.position.set(0,1.2,-.38);A.add(pack);
+function limb(x,y,r,len,mat){const g=new THREE.Group();g.position.set(x,y,0);const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,10),mat);m.position.y=-len/2;g.add(m);A.add(g);return g}
+const aL=limb(-.58,1.5,.12,.7,W),aR=limb(.58,1.5,.12,.7,W),lL=limb(-.2,.75,.16,.75,W),lR=limb(.2,.75,.16,.75,W);
+[lL,lR].forEach(l=>{const b=new THREE.Mesh(new THREE.BoxGeometry(.3,.15,.45),DK);b.position.set(0,-.72,.08);l.add(b)});
+A.scale.setScalar(.9);S.add(A);
+/* rocks, dust, shadows */
+const rk=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1,0),new THREE.MeshStandardMaterial({color:0x7d7d85,roughness:1,flatShading:true}),220),rm=new THREE.Matrix4(),rq=new THREE.Quaternion(),re=new THREE.Euler(),rs=new THREE.Vector3(),rp=new THREE.Vector3();
+for(let i=0;i<220;i++){const a=Math.random()*6.28,r=10+Math.random()*85,x=Math.cos(a)*r,z=Math.sin(a)*r,s=.15+Math.random()*Math.random()*1.1;re.set(Math.random()*3,Math.random()*3,Math.random()*3);rq.setFromEuler(re);rs.set(s,s*.7,s);rp.set(x,h(x,z)+s*.3,z);rm.compose(rp,rq,rs);rk.setMatrixAt(i,rm)}
+S.add(rk);
+const DN=60,dp=new Float32Array(DN*3).fill(-100),dl=new Float32Array(DN),dg=new THREE.BufferGeometry();dg.setAttribute("position",new THREE.BufferAttribute(dp,3));
+const dust=new THREE.Points(dg,new THREE.PointsMaterial({color:0xb5b5bd,size:.2,transparent:true,opacity:.6,depthWrite:false}));dust.frustumCulled=false;S.add(dust);let di=0;
+function puff(x,y,z){dp[di*3]=x+(Math.random()-.5)*.4;dp[di*3+1]=y+.1;dp[di*3+2]=z+(Math.random()-.5)*.4;dl[di]=1;di=(di+1)%DN}
+S.traverse(o=>{if(o.isMesh&&o!==ground&&o!==earth&&o!==beam&&o!==spot){o.castShadow=true;if(o===rk)o.receiveShadow=true}});INT.traverse(o=>{o.castShadow=false});
+
+/* game state */
+const MIS=["OXYGEN · Collect 5 rock samples (watch your air)","POWER · Deploy the seismometer at the science station","FUEL · Carry the propellant crate to your spaceship","MORALE · Plant the flag at the landing marker, then board"];
+let tm=0,pw=100,fu=45,mo=70,sub=0,solar=0,inside=false,intT=0,crisis=null,book=0,cT=25,faced=[],st="start",mi=0,got=0,ox=100,vy=0,yaw=0,t0=0,intro=0,toastT=0;
+const pos=new THREE.Vector3(4,0,6),keys={};
+const dxz=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
+function hud(){$("mp").style.width=(mi/4*100)+"%";$("ml").innerHTML=MIS.map((m,i)=>`<li class="${i<mi?"done":i==mi?"now":""}">${i<mi?"✔":i==mi?"▶":"○"} ${m}${i==0&&mi==0?" ("+got+"/5)":""}</li>`).join("")}
+function toast(s,d){const e=$("toast");$("tt").textContent=s;e.style.opacity=1;toastT=d||3}
+const fmt=s=>Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+const RS=[["ox","OXYGEN","#5ec8ff"],["pw","POWER","#ffd35e"],["fu","FUEL","#ff8a5e"],["mo","MORALE","#9be37a"]];
+$("rs").innerHTML=RS.map(r=>`<div class="lb">${r[1]} <b id="n${r[0]}">100%</b></div><div class="bar"><i id="b${r[0]}"></i></div>`).join("");
+function target(){if(mi==0){let b=null,bd=1e9;crystals.forEach(c=>{if(c.visible){const d=dxz(c.position,pos);if(d<bd){bd=d;b=c.position}}});return b}return mi==1?ANT:mi==2?(sub?lander.position:FL):(sub?lander.position:FG)}
+function reset(){crisis=null;cr.style.display="none";cT=25;faced=[];inside=false;cyaw=0;tm=0;mi=0;got=0;pw=100;fu=45;mo=70;sub=0;solar=0;can.visible=true;spot.visible=true;spot2.visible=true;ox=100;vy=0;pos.set(4,0,6);yaw=0;crystals.forEach(c=>c.visible=true);flag.visible=false;lamp.material.color.set(0xff4040);hud()}
+function begin(){reset();st="intro";intro=3.2;$("ov").classList.add("hide");toast("Walking toward the Moon base…")}
+$("go").onclick=()=>{if(st=="start"||st=="won"||st=="dead")begin()};
+addEventListener("keydown",e=>{const k=e.key.toLowerCase();keys[k]=1;if(k=="e"&&!e.repeat)enterExit();if(k==" "||k.startsWith("arrow"))e.preventDefault()});
+addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=0});
+document.querySelectorAll("#pad [data-k]").forEach(b=>{const k=b.dataset.k;
+ b.addEventListener("pointerdown",e=>{e.preventDefault();keys[k]=1;if(k=="e")enterExit()});
+ ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>keys[k]=0))});
+function end(s,title,txt,btn){st=s;$("ov").classList.remove("hide");$("ov").querySelector("h1").textContent=title;$("ovt").textContent=txt;$("go").textContent=btn}
+
+let last=performance.now();let cyaw=0;const la=new THREE.Vector3();
+function tick(now){requestAnimationFrame(tick);const dt=(crisis||book)?0:Math.min(.05,(now-last)/1e3);last=now;const t=now/1e3;
+ earth.rotation.y+=dt*.03;beam.rotation.y+=dt;
+ crystals.forEach(c=>{c.position.y=h(c.position.x,c.position.z)+.35});
+ let ix=0,iz=0,moving=false,turn=0,fwd=0;
+ if(st=="play"){turn=(keys.a||keys.arrowleft?1:0)-(keys.d||keys.arrowright?1:0);fwd=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)*.6;yaw+=turn*2*dt}
+ if(st=="intro"){const tg=target();const dx=tg.x-pos.x,dz=tg.z-pos.z,d=Math.hypot(dx,dz)||1;const want=Math.atan2(dx,dz);let e=want-yaw;e=Math.atan2(Math.sin(e),Math.cos(e));yaw+=e*Math.min(1,dt*4);fwd=1;intro-=dt;if(intro<=0){st="play";toast("Mission 1: collect 5 rock samples marked with orange flags. Every trip outside uses oxygen.",5)}}
+ if(fwd){moving=true;const sp=(st=="intro"?4:6)*fwd*(pw<=0?.5:1)*(mo<15?.7:1);
+  pos.x+=Math.sin(yaw)*sp*dt;pos.z+=Math.cos(yaw)*sp*dt;if(inside){pos.x=Math.max(-5,Math.min(5,pos.x));pos.z=Math.max(-4.2,Math.min(4.4,pos.z))}const r=Math.hypot(pos.x,pos.z);if(r>90){pos.x*=90/r;pos.z*=90/r}
+  }
+ const gy=inside?1000.1:h(pos.x,pos.z);
+ if(st=="play"&&keys[" "]){if(pos.y<=gy+.02)vy=4.2;else if(!inside&&fu>0&&vy<3){vy+=9*dt;fu-=12*dt}}
+ vy-=5*dt;pos.y+=vy*dt;if(pos.y<gy){pos.y=gy;vy=0}
+ A.position.copy(pos);A.rotation.y=yaw;
+ sun.position.set(pos.x+45,pos.y+70,pos.z+30);sun.visible=!inside;sun.target.position.copy(pos);sun.target.updateMatrixWorld();
+ if(moving&&pos.y<=gy+.05&&Math.random()<.5)puff(pos.x,pos.y,pos.z);
+ for(let i=0;i<DN;i++){if(dl[i]>0){dl[i]-=dt*1.2;dp[i*3+1]+=dt*.6}else dp[i*3+1]=-100}dg.attributes.position.needsUpdate=true;
+ const sw=moving&&pos.y<=gy+.05?Math.sin(t*9)*.7:0;lL.rotation.x=sw;lR.rotation.x=-sw;aL.rotation.x=-sw*.8;aR.rotation.x=sw*.8;
+ if(st=="play"){
+  cT-=dt;if(!crisis&&!book&&!inside&&cT<=0)startCrisis();tm+=dt;ox-=.45*dt;pw-=(solar?.12:.3)*dt;mo-=(ox<25||pw<20?.5:.12)*dt;if(solar&&dxz(pos,ANT)<7)pw=Math.min(100,pw+20*dt);if(inside){ox=Math.min(100,ox+20*dt);pw=Math.min(100,pw+8*dt);mo=Math.min(100,mo+1.2*dt)}pw=Math.max(0,pw);mo=Math.max(0,mo);fu=Math.max(0,fu);if(dxz(pos,lander.position)<5)ox=Math.min(100,ox+25*dt);
+  if(mi==0)crystals.forEach(c=>{if(c.visible&&dxz(c.position,pos)<1.9){c.visible=false;got++;ox=Math.max(1,ox-3);mo=Math.min(100,mo+3);hud();toast(got<5?"Sample "+got+"/5 bagged and tagged.":"All 5 samples collected! Next: deploy the seismometer. Fact: Apollo crews brought back about 382 kg of Moon rock and soil.",6);if(got==5){mi=1;mo=Math.min(100,mo+10);hud()}}});
+  else if(mi==1&&dxz(ANT,pos)<3){lamp.material.color.set(0x40ff80);solar=1;mi=2;sub=0;mo=Math.min(100,mo+10);hud();toast("Seismometer is online! The station’s charging point can top up your suit. Next: bring the propellant crate to your ship. Fact: Apollo seismometers recorded thousands of moonquakes.",6)}
+  else if(mi==2){if(!sub&&dxz(FL,pos)<2.5){can.visible=false;spot.visible=false;sub=1;toast("Crate secured. Carry it to your spaceship.")}else if(sub&&dxz(lander.position,pos)<4.5){fu=Math.min(100,fu+50);mi=3;sub=0;mo=Math.min(100,mo+10);hud();toast("Spaceship refuelled! Last mission: plant the flag. Fact: most of a rocket’s weight at launch is fuel.",6)}}
+  else if(mi==3){if(!sub&&dxz(FG,pos)<2.5){flag.visible=true;spot2.visible=false;sub=1;mo=Math.min(100,mo+25);toast("Flag planted! Morale is up. Fact: astronauts stay happy with exercise, calls home and shared meals. Now board your spaceship (E).",6)}else if(sub&&inside){hud();{const sc=1+(Math.min(ox,pw,mo)>25)+(tm<300);end("won","Mission complete","★".repeat(sc)+"☆".repeat(3-sc)+"   Time "+fmt(tm)+" · O₂ "+Math.round(ox)+"% · Power "+Math.round(pw)+"% · Fuel "+Math.round(fu)+"% · Morale "+Math.round(mo)+"%","Play again")}}}
+  if(ox<=0)end("dead","Out of oxygen","Stay close to the lander to refill your oxygen. Try again!","Try again");
+ }
+ const tg=target();if(tg&&st!="won"){beam.visible=!inside;beam.position.set(tg.x,h(tg.x,tg.z)+20,tg.z);$("dist").textContent=Math.round(dxz(tg,pos))+" m";$("arr").style.transform="rotate("+(cyaw-Math.atan2(tg.x-pos.x,tg.z-pos.z))+"rad)"}else{beam.visible=false}
+ {const v={ox,pw,fu,mo};RS.forEach(r=>{const x=Math.max(0,v[r[0]]);$("b"+r[0]).style.width=x+"%";$("n"+r[0]).textContent=Math.round(x)+"%";$("b"+r[0]).style.background=x<25?"#ff7a7a":r[2]})}$("tm").textContent=fmt(tm);{const near=inside?(pos.z>3&&Math.abs(pos.x)<1.8):dxz(pos,doorW())<3,p=$("pr");p.style.display=st=="play"&&near?"block":"none";p.textContent=inside?"Press E to exit the spaceship":"Press E to enter the spaceship"}intT-=dt;if(inside&&intT<=0){intT=.25;drawInt()}
+ if(toastT>0){toastT-=dt;if(toastT<=0)$("toast").style.opacity=0}
+ if(st=="start"||st=="won"||st=="dead"){const a=t*.2;C.position.set(pos.x+Math.sin(a)*9,pos.y+3.5,pos.z+Math.cos(a)*9)}
+ else{const k=Math.min(1,dt*3);{let e=yaw-cyaw;e=Math.atan2(Math.sin(e),Math.cos(e));cyaw+=e*Math.min(1,dt*3)}la.x+=(Math.sin(cyaw)*4-la.x)*k;la.z+=(Math.cos(cyaw)*4-la.z)*k;
+  const D=inside?4:9.5,Hh=inside?2.4:5;const want=new THREE.Vector3(pos.x-Math.sin(cyaw)*D,pos.y+Hh,pos.z-Math.cos(cyaw)*D);if(inside){want.x=Math.max(-5.6,Math.min(5.6,want.x));want.z=Math.max(-4.6,Math.min(4.6,want.z))}C.position.lerp(want,Math.min(1,dt*8))}
+ C.lookAt(pos.x+(st=="play"||st=="intro"?la.x:0),pos.y+1.3,pos.z+(st=="play"||st=="intro"?la.z:0));R.render(S,C)}
+/* crises and handbook (learning) */
+const CRS=[
+{t:"Solar flare alert",d:"The Sun just released a burst of radiation. It will reach you soon!",c:[
+{l:"Shelter inside the spaceship",e:[-2,-4,0,3],g:1,x:"Correct! Spacecraft walls and storm shelters block much of the radiation. Satellites that watch the Sun give crews a warning."},
+{l:"Keep working outside",e:[-5,0,0,-20],g:0,x:"Risky. Too much radiation can harm the body, so crews limit exposure and take cover during flares."},
+{l:"Switch off non-essential systems",e:[0,10,0,-3],g:1,x:"Smart! Saving power protects electronics and keeps a reserve for emergencies."}]},
+{t:"Micro-meteoroid shower",d:"Tiny space rocks are racing toward you, about ten times faster than a bullet!",c:[
+{l:"Take cover behind the spaceship",e:[-2,0,0,3],g:1,x:"Correct! Hiding behind strong shielding is the best protection. Spacecraft have special layered walls."},
+{l:"Ignore it and keep walking",e:[-15,-5,0,-8],g:0,x:"Dangerous. At that speed even a grain of dust can puncture a suit or damage a spacecraft."},
+{l:"Run toward the base dome",e:[-6,-3,0,0],g:0,x:"Running wastes oxygen. Taking the nearest cover is usually safer."}]},
+{t:"Suit leak alarm",d:"Your suit warns that air is leaking slowly. Oxygen is dropping!",c:[
+{l:"Use the repair kit to patch the leak",e:[-3,0,0,4],g:1,x:"Correct! Astronauts carry repair kits and are trained to fix small leaks fast."},
+{l:"Keep going and hope it stops",e:[-25,0,0,-6],g:0,x:"Risky. Leaks never fix themselves. Fix it first, then continue."},
+{l:"Head back to the spaceship",e:[-8,-2,0,0],g:1,x:"Good. Returning to safety is sensible, but patching first would have saved more oxygen."}]},
+{t:"Radio blackout",d:"Your link to Mission Control on Earth has dropped. You are on your own for a while.",c:[
+{l:"Follow the checklist step by step",e:[0,-4,0,5],g:1,x:"Correct! Astronauts train for years to follow checklists calmly. Procedures prevent panic."},
+{l:"Switch to the backup antenna",e:[0,-3,0,4],g:1,x:"Great! Important systems always have a backup. This is called redundancy."},
+{l:"Shout into the radio again and again",e:[-2,-3,0,-12],g:0,x:"Stress does not fix the problem. Staying calm and methodical does."}]},
+{t:"Carbon dioxide rising",d:"The air filter is failing. Carbon dioxide, the gas we breathe out, is building up.",c:[
+{l:"Swap in a spare filter cartridge",e:[6,-4,0,3],g:1,x:"Correct! Filters remove carbon dioxide. Crews carry spare parts and know how to replace them."},
+{l:"Rest and breathe slowly",e:[3,0,0,-5],g:1,x:"Helpful for a while. Calm breathing makes less CO2, but the filter still needs fixing."},
+{l:"Switch off the safety alarm",e:[-18,0,0,-10],g:0,x:"Never ignore alarms! They exist to protect the crew."}]}];
+const cr=$("cr"),bk=$("bk");
+const ap=e=>{ox=Math.max(1,Math.min(100,ox+e[0]));pw=Math.max(0,Math.min(100,pw+e[1]));fu=Math.max(0,Math.min(100,fu+e[2]));mo=Math.max(0,Math.min(100,mo+e[3]))};
+function startCrisis(){const left=CRS.map((c,i)=>i).filter(i=>!faced.includes(i));if(!left.length){cT=90;return}
+ const i=left[Math.random()*left.length|0];crisis=CRS[i];faced.push(i);
+ cr.innerHTML=`<div class="w">⚠ CRISIS</div><h2>${crisis.t}</h2><p>${crisis.d}</p>`+crisis.c.map((c,k)=>`<button data-k="${k}">${c.l}</button>`).join("");
+ cr.style.display="block";cr.querySelectorAll("button").forEach(b=>b.onclick=()=>pick(+b.dataset.k))}
+function pick(k){const c=crisis.c[k];ap(c.e);const dl=["O₂","Power","Fuel","Morale"].map((n,j)=>c.e[j]?n+" "+(c.e[j]>0?"+":"")+c.e[j]:"").filter(Boolean).join(" · ");
+ cr.innerHTML=`<div class="w">${c.g?"GOOD CALL":"RISKY CHOICE"}</div><h2>${crisis.t}</h2><div class="fb2">${c.x}</div><p style="color:var(--mut);font-size:.85rem">${dl}</p><button id="cc">Continue</button>`;
+ $("cc").onclick=()=>{cr.style.display="none";crisis=null;cT=45+Math.random()*25;hud()}}
+const DUTY=[["Run science experiments","Astronauts study biology, physics and materials in microgravity, where things behave differently than on Earth."],["Exercise about 2 hours every day","Without gravity, muscles and bones get weaker, so crews use a treadmill, a bike and weight machines."],["Go on spacewalks","Wearing a pressurised suit, astronauts leave the station to repair and upgrade it. They practise underwater first."],["Repair and maintain the spacecraft","Filters, pumps, computers and water recyclers all need regular care."],["Eat, drink and sleep in microgravity","Food comes in pouches and water is recycled. Crews sleep in sleeping bags attached to the wall, because there is no up or down."],["Talk to Mission Control and family","Daily calls and video chats keep the crew connected and in good spirits."],["Train for years","Simulators, robot-arm practice and emergency drills prepare them for almost anything."],["Work as a team","Checklists, clear communication and trust keep everyone safe."]];
+const INFO=CRS.map(c=>[c.t,c.c.find(x=>x.g).x.replace(/^(Correct|Great|Smart|Good)[.!]\s*/,"")]).concat([["Fire on board","Crews switch off power to the area, use extinguishers and put on masks. Smoke detectors give an early warning."]]);
+function openBook(){book=1;bk.innerHTML=`<h2>📖 Astronaut Handbook</h2><p style="color:var(--mut);margin:0">Press H or Esc to close. The game is paused while you read.</p><h3>WHAT DOES AN ASTRONAUT DO?</h3><ul>${DUTY.map(d=>`<li><b>${d[0]}.</b> ${d[1]}</li>`).join("")}</ul><h3>CRISES AND HOW CREWS SOLVE THEM</h3><ul>${INFO.map((d,i)=>`<li><b>${i<CRS.length&&faced.includes(i)?"✔ ":""}${d[0]}.</b> ${d[1]}</li>`).join("")}</ul><button id="bc">Close</button>`;bk.style.display="block";$("bc").onclick=closeBook}
+function closeBook(){book=0;bk.style.display="none"}
+$("hb").onclick=()=>book?closeBook():openBook();
+addEventListener("keydown",e=>{const k=e.key.toLowerCase();if(k=="h")book?closeBook():openBook();else if(k=="escape"&&book)closeBook()});
+hud();requestAnimationFrame(tick);
+</script>
+</body>
+</html>
