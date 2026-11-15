@@ -1,6 +1,13 @@
 [build]
   publish = "build/web"
-  command = "curl -fsSL -o /tmp/flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz && tar -xJf /tmp/flutter.tar.xz -C /tmp && /tmp/flutter/bin/flutter build web --release"
+  command = """
+    curl -fsSL -o /tmp/flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz \
+    && tar -xJf /tmp/flutter.tar.xz -C /tmp \
+    && /tmp/flutter/bin/flutter build web --release \
+      ${API_BASE:+--dart-define=API_BASE=$API_BASE} \
+      ${SUPABASE_URL:+--dart-define=SUPABASE_URL=$SUPABASE_URL} \
+      ${SUPABASE_ANON_KEY:+--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY}
+  """
 
 [[redirects]]
   from = "/*"
